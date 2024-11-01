@@ -2,19 +2,17 @@ package com.ssafy.mvc.model.service;
 
 import java.util.List;
 
+import org.springframework.stereotype.Service;
+
 import com.ssafy.mvc.model.dao.VideoDao;
-import com.ssafy.mvc.model.dao.VideoDaoImpl;
 import com.ssafy.mvc.model.dto.VideoDto;
 
+@Service
 public class VideoServiceImpl implements VideoService {
-	private static VideoService service = new VideoServiceImpl();
-	private VideoDao dao = VideoDaoImpl.getInstance();
+	private final VideoDao dao;
 
-	private VideoServiceImpl() {
-	}
-
-	public static VideoService getInstance() {
-		return service;
+	private VideoServiceImpl(VideoDao dao) {
+		this.dao = dao;
 	}
 
 	@Override

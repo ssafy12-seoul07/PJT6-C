@@ -1,41 +1,30 @@
 package com.ssafy.mvc.controller;
 
-import java.io.IOException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
+import com.ssafy.mvc.model.dto.VideoDto;
 import com.ssafy.mvc.model.service.VideoService;
-import com.ssafy.mvc.model.service.VideoServiceImpl;
 
-import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+@RestController
+@RequestMapping("/api/video")
+public class VideoRestController{
+	private final VideoService service;
 
-@WebServlet("/video")
-public class VideoRestController extends HttpServlet {
-	private static final long serialVersionUID = 1L;
-	private VideoService service = VideoServiceImpl.getInstance();
-	private final String prefix = "/WEB-INF/video";
-
-	@Override
-	protected void service(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-		String action = req.getParameter("action");
-
-		switch (action) {
-		case "player":
-			doPlayer(req, res);
-			break;
-		default:
-			break;
-		}
-
+	@Autowired
+	public VideoRestController(VideoService videoService) {
+		this.service = videoService;
 	}
 
-	// 비디오 재생 페이지로 이동
-	private void doPlayer(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-		int id = Integer.parseInt(req.getParameter("videoId"));
-
-		req.setAttribute("video", service.getVideo(id));
-		req.getRequestDispatcher(prefix + "player.jsp").forward(req, res);
+	// 비디오 상세정보
+	@GetMapping("/{videoId}")
+	private ResponseEntity<?> doPlayer(@PathVariable int videoId) {
+		VideoDto video = service.getVideo(videoId);
+		return new ResponseEntity<>(video, HttpStatus.OK);
 	}
 }

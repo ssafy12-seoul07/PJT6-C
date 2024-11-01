@@ -1,125 +1,86 @@
 package com.ssafy.mvc.controller;
 
-import java.io.IOException;
+import java.util.List;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.ssafy.mvc.model.dto.UserDto;
 import com.ssafy.mvc.model.service.UserService;
-import com.ssafy.mvc.model.service.UserServiceImpl;
 
-import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+@RestController
+@RequestMapping("/api/user")
+public class UserRestController {
+    private final UserService service;
 
-@WebServlet("/user")
-public class UserRestController extends HttpServlet {
-	private static final long serialVersionUID = 1L;
-	private UserService service = UserServiceImpl.getInstance();
-	private final String prefix = "/WEB-INF/user/";
+    public UserRestController(UserService userService) {
+        this.service = userService;
+    }
 
-	@Override
-	protected void service(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-		String action = req.getParameter("action");
+    // 사용자 프로필 조회 (ID로)
+    @GetMapping("/{userId}")
+    public ResponseEntity<UserDto> getUser(@PathVariable int userId) {
+        UserDto user = service.getUser(userId);
+        return new ResponseEntity<>(user, HttpStatus.OK);
+    }
 
-		switch (action) {
-		case "registerform":
-			doRegisterForm(req, res);
-			break;
-		case "register":
-			doRegister(req, res);
-			break;
-		case "favorite":
-			doFavorite(req, res);
-			break;
-		case "reviewList":
-			doReviewList(req, res);
-			break;
-		case "profile":
-			doProfile(req, res);
-			break;
-		case "delete":
-			doRemove(req, res);
-			break;
-		case "updateform":
-			doUpdateForm(req, res);
-			break;
-		case "update":
-			doUpdate(req, res);
-			break;
-		default:
-// 에러 페이지로 연결
-			break;
+    // 새 사용자 등록(회원가입)
+    @PostMapping()
+    public ResponseEntity<Void> registUser(@ModelAttribute UserDto userDto) {
+        service.registerUser(userDto);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    // 사용자 정보 업데이트
+    @PutMapping("/{userId}")
+    public ResponseEntity<Void> updateUser(@PathVariable String id, @RequestBody UserDto userDto) {
+        userDto.setId(id);
+        service.modifyUser(userDto);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    // 사용자 삭제
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<Void> deleteUser(@PathVariable int userId) {
+        service.removeUser(userId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
+
+    // 로그인 
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@ModelAttribute UserDto user, HttpSession session) {
+        List<UserDto> list = service.getList();
+
+        for(UserDto u : list){
+            if( session.getAttribute("loginUser") == null && u.getId().equals(user.getId()) && u.getPassword().equals(user.getPassword())){
+                session.setAttribute("loginUser", u);
+                System.out.println("login");
+                return new ResponseEntity<>(HttpStatus.OK);
+            }
+        }
+
+                System.out.println("no");
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
+
+
+    // 로그아웃
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpSession session) {
+		if (session != null && session.getAttribute("loginUser") != null) {
+		    session.invalidate();
+		    return new ResponseEntity<>(HttpStatus.OK);
 		}
-
-	}
-
-	private void doUpdate(HttpServletRequest req, HttpServletResponse res) throws IOException {
-		UserDto user = service.getUser(Integer.parseInt(req.getParameter("userId")));
-		user.setName(req.getParameter("userName"));
-		user.setEmail(req.getParameter("userEmail"));
-		user.setPassword(req.getParameter("password"));
-
-		service.modifyUser(user);
-
-		res.sendRedirect(prefix + "?action=profile");
-	}
-
-	// 유저 정보 수정
-	private void doUpdateForm(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-		int id = Integer.parseInt(req.getParameter("userId"));
-
-		UserDto user = service.getUser(id);
-		req.setAttribute("user", user);
-		req.getRequestDispatcher(prefix + "updateform.jsp").forward(req, res);
-	}
-
-	// 회원 탈퇴
-	private void doRemove(HttpServletRequest req, HttpServletResponse res) throws IOException {
-		int id = Integer.parseInt(req.getParameter("userId"));
-
-		service.removeUser(id);
-		res.sendRedirect(prefix + "?action=remove");
-	}
-
-	// 유저 프로필 열람
-	// 본인의 프로필인 경우 수정 가능
-	// 타인의 프로필인 경우 팔로우 등
-	private void doProfile(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-		int id = Integer.parseInt(req.getParameter("userId"));
-
-		req.setAttribute("user", service.getUser(id));
-		req.getRequestDispatcher(prefix + "profile.jsp").forward(req, res);
-	}
-
-	// 자신의 리뷰 목록을 관리
-	private void doReviewList(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-		req.setAttribute("reviewList", service.getList());
-		req.getRequestDispatcher(prefix + "reviews.jsp").forward(req, res);
-	}
-
-	// 자신의 찜 목록을 관리
-	private void doFavorite(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-		req.setAttribute("favoriteList", service.getList());
-		req.getRequestDispatcher(prefix + "favorite.jsp").forward(req, res);
-	}
-
-	// 회원가입
-	private void doRegister(HttpServletRequest req, HttpServletResponse res) throws IOException {
-		String id = req.getParameter("userId");
-		String password = req.getParameter("password");
-		String name = req.getParameter("userName");
-		String email = req.getParameter("userEmail");
-
-		UserDto user = new UserDto(0, id, password, name, email, 0, "");
-
-		service.registerUser(user);
-
-		res.sendRedirect(prefix + "?action=register");
-	}
-
-	private void doRegisterForm(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-		req.getRequestDispatcher(prefix + "registerform.jsp").forward(req, res);
-	}
-
+		return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
 }
