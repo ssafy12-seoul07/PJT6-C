@@ -1,108 +1,67 @@
 package com.ssafy.mvc.controller;
 
 import java.io.IOException;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.ssafy.mvc.model.dto.ReviewDto;
 import com.ssafy.mvc.model.service.ReviewService;
-import com.ssafy.mvc.model.service.ReviewServiceImpl;
 
-import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+@RestController
+@RequestMapping("/api")
+public class ReviewRestController {
+	private final ReviewService service;
 
-@WebServlet("/review")
-public class ReviewRestController extends HttpServlet {
-	private static final long serialVersionUID = 1L;
-	private ReviewService service = ReviewServiceImpl.getInstance();
-	private final String prefix = "/WEB-INF/review";
-
-	@Override
-	protected void service(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-		String action = req.getParameter("action");
-
-		switch (action) {
-		case "writeform":
-			doWriteForm(req, res);
-			break;
-		case "write":
-			doWrite(req, res);
-			break;
-		case "list":
-			doList(req, res);
-			break;
-		case "detail":
-			doDetail(req, res);
-			break;
-		case "delete":
-			doRemove(req, res);
-			break;
-		case "updateform":
-			doUpdateForm(req, res);
-			break;
-		case "update":
-			doUpdate(req, res);
-			break;
-		default:
-
-			break;
-		}
-
+	@Autowired
+	public ReviewRestController(ReviewService service) {
+		this.service = service;
 	}
 
-	private void doUpdate(HttpServletRequest req, HttpServletResponse res) throws IOException {
-		ReviewDto review = service.getReview(Integer.parseInt(req.getParameter("reviewId")));
-		review.setModifiedAt(req.getParameter("modifiedAt"));
-		review.setContent(req.getParameter("content"));
+	// 영상 id를 통해 해당 영상 내 리뷰를 가져옴
+	@GetMapping("/video/{videoId}/reviews")
+	private ResponseEntity<?> getReviews(@PathVariable int videoId) {
+		List<ReviewDto> list = service.getList();
 
-		service.modifyReview(review);
-
-		res.sendRedirect("review?action=list");
+		return new ResponseEntity<>(list, HttpStatus.OK);
 	}
 
-	private void doUpdateForm(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-		int id = Integer.parseInt(req.getParameter("reviewId"));
+	// id로 리뷰를 반환
+	@GetMapping("/review/{reviewId}")
+	private ResponseEntity<?> getReview(@PathVariable int reviewId) {
+		ReviewDto review = service.getReview(reviewId);
 
-		ReviewDto review = service.getReview(id);
-		req.setAttribute("review", review);
-		req.getRequestDispatcher(prefix + "updateform.jsp").forward(req, res);
+		return new ResponseEntity<>(review, HttpStatus.OK);
 	}
 
-	private void doRemove(HttpServletRequest req, HttpServletResponse res) throws IOException {
-		int id = Integer.parseInt(req.getParameter("reviewId"));
-
-		service.removeReview(id);
-		res.sendRedirect("review?action=list");
-	}
-
-	private void doDetail(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-		int id = Integer.parseInt(req.getParameter("reviewId"));
-
-		req.setAttribute("review", service.getReview(id));
-		req.getRequestDispatcher(prefix + "detail.jsp").forward(req, res);
-	}
-
-	// 자신의 리뷰를 일괄 관리할 경우 사용
-	private void doList(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-		req.setAttribute("list", service.getList());
-		req.getRequestDispatcher(prefix + "list.jsp").forward(req, res);
-	}
-
-	private void doWrite(HttpServletRequest req, HttpServletResponse res) throws IOException {
-		String videoId = req.getParameter("videoId");
-		String userId = req.getParameter("userId");
-		String content = req.getParameter("content");
-
-		ReviewDto review = new ReviewDto(0, videoId, userId, content, 0, "", "", 0, "");
-
+	@PostMapping("/review")
+	private ResponseEntity<?> doWrite(@ModelAttribute ReviewDto review) {
 		service.writeReview(review);
-
-		res.sendRedirect("review?action=list");
+		
+		return new ResponseEntity<>(review, HttpStatus.OK);
 	}
 
-	private void doWriteForm(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-		req.getRequestDispatcher(prefix + "writeform.jsp").forward(req, res);
+	@PutMapping("/review/{reviewId}")
+	private ResponseEntity<?> doUpdate(@RequestBody ReviewDto review, @PathVariable int id) throws IOException {
+		service.modifyReview(review);
+		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
+	@DeleteMapping("/review/{reviewId}")
+	private ResponseEntity<?> doRemove(@PathVariable int reviewId) {
+		service.removeReview(reviewId);
+
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
 }

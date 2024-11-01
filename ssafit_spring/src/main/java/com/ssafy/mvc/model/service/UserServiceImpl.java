@@ -2,20 +2,17 @@ package com.ssafy.mvc.model.service;
 
 import java.util.List;
 
+import org.springframework.stereotype.Service;
+
 import com.ssafy.mvc.model.dao.UserDao;
-import com.ssafy.mvc.model.dao.UserDaoImpl;
 import com.ssafy.mvc.model.dto.UserDto;
 
+@Service
 public class UserServiceImpl implements UserService {
+	private final UserDao dao;
 
-	private static UserService service = new UserServiceImpl();
-	private UserDao dao = UserDaoImpl.getInstance();
-
-	private UserServiceImpl() {
-	}
-
-	public static UserService getInstance() {
-		return service;
+	public UserServiceImpl(UserDao dao) {
+		this.dao = dao;
 	}
 
 	@Override
