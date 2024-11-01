@@ -33,27 +33,25 @@ public class ReviewRestController {
 	@GetMapping("/video/{videoId}/reviews")
 	private ResponseEntity<?> getReviews(@PathVariable int videoId) {
 		List<ReviewDto> list = service.getList();
-
 		return new ResponseEntity<>(list, HttpStatus.OK);
 	}
 
 	// id로 리뷰를 반환
 	@GetMapping("/review/{reviewId}")
-	private ResponseEntity<?> getReview(@PathVariable int reviewId) {
+	private ResponseEntity<?> getReview(@PathVariable("reviewId") int reviewId) {
 		ReviewDto review = service.getReview(reviewId);
-
 		return new ResponseEntity<>(review, HttpStatus.OK);
 	}
 
 	@PostMapping("/review")
 	private ResponseEntity<?> doWrite(@ModelAttribute ReviewDto review) {
 		service.writeReview(review);
-		
-		return new ResponseEntity<>(review, HttpStatus.OK);
+
+		return new ResponseEntity<ReviewDto>(review, HttpStatus.OK);
 	}
 
 	@PutMapping("/review/{reviewId}")
-	private ResponseEntity<?> doUpdate(@RequestBody ReviewDto review, @PathVariable int id) throws IOException {
+	private ResponseEntity<?> doUpdate(@RequestBody ReviewDto review, @PathVariable int reviewId) throws IOException {
 		service.modifyReview(review);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}

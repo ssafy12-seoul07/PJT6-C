@@ -2,18 +2,17 @@ package com.ssafy.mvc.controller;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.SessionAttribute;
 
 import com.ssafy.mvc.model.dto.UserDto;
 import com.ssafy.mvc.model.service.UserService;
@@ -36,8 +35,8 @@ public class UserRestController {
     }
 
     // 새 사용자 등록(회원가입)
-    @PostMapping
-    public ResponseEntity<Void> registUser(@RequestBody UserDto userDto) {
+    @PostMapping()
+    public ResponseEntity<Void> registUser(@ModelAttribute UserDto userDto) {
         service.registerUser(userDto);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -59,17 +58,19 @@ public class UserRestController {
 
     // 로그인 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody UserDto user, HttpSession session) {
+    public ResponseEntity<?> login(@ModelAttribute UserDto user, HttpSession session) {
         List<UserDto> list = service.getList();
 
         for(UserDto u : list){
-            if(u.getId().equals(user.getId()) && u.getPassword().equals(user.getPassword())){
+            if( session.getAttribute("loginUser") == null && u.getId().equals(user.getId()) && u.getPassword().equals(user.getPassword())){
                 session.setAttribute("loginUser", u);
+                System.out.println("login");
                 return new ResponseEntity<>(HttpStatus.OK);
             }
         }
 
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+                System.out.println("no");
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
 
