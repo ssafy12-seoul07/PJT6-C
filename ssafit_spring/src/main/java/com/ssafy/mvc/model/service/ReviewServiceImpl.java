@@ -2,19 +2,17 @@ package com.ssafy.mvc.model.service;
 
 import java.util.List;
 
+import org.springframework.stereotype.Service;
+
 import com.ssafy.mvc.model.dao.ReviewDao;
-import com.ssafy.mvc.model.dao.ReviewDaoImpl;
 import com.ssafy.mvc.model.dto.ReviewDto;
 
+@Service
 public class ReviewServiceImpl implements ReviewService {
-	private static ReviewService service = new ReviewServiceImpl();
-	private ReviewDao dao = ReviewDaoImpl.getInstance();
+	private final ReviewDao dao;
 
-	private ReviewServiceImpl() {
-	}
-
-	public static ReviewService getInstance() {
-		return service;
+	private ReviewServiceImpl(ReviewDao dao) {
+		this.dao = dao;
 	}
 
 	@Override

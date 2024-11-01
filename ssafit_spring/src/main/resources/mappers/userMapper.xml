@@ -1,1 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace = "com.ssafy.mvc.model.dao.UserDao">
+<select id="selectAll" resultType="UserDto">
+SELECT * FROM user
+</select>
+
+<select id="selectOne" parameterType="int" resultType="UserDto">
+SELECT * FROM user
+WHERE user_id = #{user_id}
+</select>
+
+<insert id="registerUser" parameterType="UserDto">
+INSERT INTO user(id, password, name, email)
+VALUES (#{id}, #{password}, #{name}, #{email})
+</insert>
+
+<update id="updateUser" parameterType="UserDto" >
+UPDATE user
+SET password = #{password}, name = #{name}, email = #{email}
+WHERE user_id = #{user_id}
+</update>
+
+<delete id="deleteUser" parameterType="int">
+ DELETE FROM user WHERE user_id = #{user_id}
+</delete>
+
+</mapper>
