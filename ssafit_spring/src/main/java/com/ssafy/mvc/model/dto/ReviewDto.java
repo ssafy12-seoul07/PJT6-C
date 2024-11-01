@@ -8,14 +8,12 @@ public class ReviewDto {
 	private int parent;
 	private String createdAt;
 	private String modifiedAt;
-	private int userUserId;
-	private String videoVideoId;
 
 	public ReviewDto() {
 	}
 
 	public ReviewDto(int reviewId, String videoId, String userId, String content, int parent, String createdAt,
-			String modifiedAt, int userUserId, String videoVideoId) {
+			String modifiedAt) {
 		super();
 		this.reviewId = reviewId;
 		this.videoId = videoId;
@@ -24,8 +22,6 @@ public class ReviewDto {
 		this.parent = parent;
 		this.createdAt = createdAt;
 		this.modifiedAt = modifiedAt;
-		this.userUserId = userUserId;
-		this.videoVideoId = videoVideoId;
 	}
 
 	public int getReviewId() {
@@ -84,27 +80,5 @@ public class ReviewDto {
 		this.modifiedAt = modifiedAt;
 	}
 
-	public int getUserUserId() {
-		return userUserId;
-	}
-
-	public void setUserUserId(int userUserId) {
-		this.userUserId = userUserId;
-	}
-
-	public String getVideoVideoId() {
-		return videoVideoId;
-	}
-
-	public void setVideoVideoId(String videoVideoId) {
-		this.videoVideoId = videoVideoId;
-	}
-
-	@Override
-	public String toString() {
-		return "ReviewDto [reviewId=" + reviewId + ", videoId=" + videoId + ", userId=" + userId + ", content="
-				+ content + ", parent=" + parent + ", createdAt=" + createdAt + ", modifiedAt=" + modifiedAt
-				+ ", userUserId=" + userUserId + ", videoVideoId=" + videoVideoId + "]";
-	}
 
 }

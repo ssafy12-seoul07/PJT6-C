@@ -58,22 +58,8 @@
     `parent` INT ZEROFILL NOT NULL,
     `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `modified_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    `user_user_id` INT NOT NULL,
-    `video_video_id` VARCHAR(45) NOT NULL,
-    PRIMARY KEY (`review_id`, `user_user_id`, `video_video_id`),
+    PRIMARY KEY (`review_id`),
     UNIQUE INDEX `review_id_UNIQUE` (`review_id` ASC) ,
-    INDEX `fk_review_user_idx` (`user_user_id` ASC) ,
-    INDEX `fk_review_video1_idx` (`video_video_id` ASC) ,
-    CONSTRAINT `fk_review_user`
-      FOREIGN KEY (`user_user_id`)
-      REFERENCES `mydb`.`user` (`user_id`)
-      ON DELETE NO ACTION
-      ON UPDATE NO ACTION,
-    CONSTRAINT `fk_review_video1`
-      FOREIGN KEY (`video_video_id`)
-      REFERENCES `mydb`.`video` (`video_id`)
-      ON DELETE NO ACTION
-      ON UPDATE NO ACTION);
 
 
   -- -----------------------------------------------------
@@ -83,21 +69,7 @@
     `user_id` INT NOT NULL,
     `video_id` VARCHAR(45) NOT NULL,
     `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `user_user_id` INT NOT NULL,
-    `video_video_id` VARCHAR(45) NOT NULL,
-    PRIMARY KEY (`user_id`, `video_id`, `user_user_id`, `video_video_id`),
-    INDEX `fk_favorite_user1_idx` (`user_user_id` ASC) ,
-    INDEX `fk_favorite_video1_idx` (`video_video_id` ASC) ,
-    CONSTRAINT `fk_favorite_user1`
-      FOREIGN KEY (`user_user_id`)
-      REFERENCES `mydb`.`user` (`user_id`)
-      ON DELETE NO ACTION
-      ON UPDATE NO ACTION,
-    CONSTRAINT `fk_favorite_video1`
-      FOREIGN KEY (`video_video_id`)
-      REFERENCES `mydb`.`video` (`video_id`)
-      ON DELETE NO ACTION
-      ON UPDATE NO ACTION);
+    PRIMARY KEY (`user_id`, `video_id`),
 
   -- -----------------------------------------------------
   -- Insert data into `user`
@@ -118,34 +90,18 @@
   -- -----------------------------------------------------
   -- Insert data into `review`
   -- -----------------------------------------------------
-  INSERT INTO `mydb`.`review` (`video_id`, `user_id`, `content`, `parent`, `user_user_id`, `video_video_id`)
+  INSERT INTO `mydb`.`review` (`video_id`, `user_id`, `content`, `parent`)
   VALUES
-  ('video1', 'user1', 'Great video!', 0000000000, 1, 'video1'),
-  ('video2', 'user2', 'Very informative.', 0000000000, 2, 'video2'),
-  ('video3', 'user3', 'Loved the content.', 0000000000, 3, 'video3'),
-  ('video4', 'user4', 'Not bad.', 0000000000, 4, 'video4'),
-  ('video5', 'user5', 'Could be better.', 0000000000, 5, 'video5'),
-  ('video6', 'user6', 'Excellent!', 0000000000, 6, 'video6'),
-  ('video7', 'user7', 'Pretty good.', 0000000000, 7, 'video7'),
-  ('video8', 'user8', 'Well done!', 0000000000, 8, 'video8'),
-  ('video9', 'user9', 'Nice video.', 0000000000, 9, 'video9'),
-  ('video10', 'user10', 'Amazing work.', 0000000000, 10, 'video10');
-
-  -- -----------------------------------------------------
-  -- Insert data into `favorite`
-  -- -----------------------------------------------------
-  INSERT INTO `mydb`.`favorite` (`user_id`, `video_id`, `user_user_id`, `video_video_id`)
-  VALUES
-  (1, 'video1', 1, 'video1'),
-  (2, 'video2', 2, 'video2'),
-  (3, 'video3', 3, 'video3'),
-  (4, 'video4', 4, 'video4'),
-  (5, 'video5', 5, 'video5'),
-  (6, 'video6', 6, 'video6'),
-  (7, 'video7', 7, 'video7'),
-  (8, 'video8', 8, 'video8'),
-  (9, 'video9', 9, 'video9'),
-  (10, 'video10', 10, 'video10');
+  ('video1', 'user1', 'Great video!',  1),
+  ('video2', 'user2', 'Very informative.',  2),
+  ('video3', 'user3', 'Loved the content.',  3 ),
+  ('video4', 'user4', 'Not bad.',  4),
+  ('video5', 'user5', 'Could be better.',  5 ),
+  ('video6', 'user6', 'Excellent!',  6),
+  ('video7', 'user7', 'Pretty good.',  7 ),
+  ('video8', 'user8', 'Well done!',  8 ),
+  ('video9', 'user9', 'Nice video.',  9),
+  ('video10', 'user10', 'Amazing work.',  10);
 
 
  -- -----------------------------------------------------
